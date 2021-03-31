@@ -1,9 +1,11 @@
 const express = require("express");
 const moment = require("moment");
 const app = express();
+const path = require("path");
+const functions = require("./functions/readBase");
 const PORT = process.env.PORT || 5500;
+const basePath = path.join(__dirname, 'db.json');
 
-app.listen(PORT, () => console.log(`Server has been started port ${PORT}...`));
 
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -13,13 +15,31 @@ app.get("/", HomeGetController);
 app.post("/", HomePostController);
 app.get("/delete/:id", HomeDeleteController);
 app.get("/error", ErrorGetController);
-let data = [];
+app.get('/books', BookController);
 
-function HomeGetController(req, res) {
-    res.render("index", { site_name: "Todo-list", data });
+
+const books = [
+    {id: 1, name: "SAriq devni minib"}
+]
+
+
+ async function HomeGetController(req, res) {
+   
+    let data = await functions.read(basePath);
+    await res.render("index", { site_name: "Todo-list", data });
 }
 
-function HomePostController(req, res) {
+
+function BookController(req, res) {
+    res.send({
+        books
+    })
+}
+
+
+
+async function HomePostController(req, res) {
+    let data = await functions.read(basePath);
     let timeNow = moment().toString().slice(16, 21);
     if (getMinut(timeNow) < getMinut(req.body.time)) {
         data.push({
@@ -29,17 +49,20 @@ function HomePostController(req, res) {
             minut: getMinut(req.body.time),
         });
         data.sort((a, b) => a.minut - b.minut);
-        res.redirect("/");
+        await functions.write(basePath, data);
+        await  res.redirect("/");
     }else{
         res.status(400).redirect("/error");
     }
 }
 
-function HomeDeleteController(req, res) {
+async function HomeDeleteController(req, res) {
+    let data = await functions.read(basePath);
     let { id } = req.params;
     data = data.filter((item) => {
         return item.id !== id - 0;
     });
+    await functions.write(basePath, data);
     res.redirect("/");
 }
 
@@ -52,3 +75,9 @@ function getMinut(time) {
 function ErrorGetController(req, res) {
     res.render("error", { site_name: "Error" });
 }
+
+
+
+
+
+app.listen(PORT, () => console.log(`Server has been started port ${PORT}...`));
