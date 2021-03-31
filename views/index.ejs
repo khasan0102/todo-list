@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./components/head.ejs') %> 
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center p-3">Welcome to Todo-list</h1>
+
+        <form action="/" method="POST">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Your todo</label>
+                        <input type="text" class="form-control" name="todo" autocomplete="off" required>
+                      </div>                      
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Time</label>
+                        <input type="time" class="form-control" 
+                        name="time" id="exampleInputPassword1" required>
+                      </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+
+          </form>
+
+
+
+          <% if ( data.length < 1) { %>
+                <h2 class="mt-5">No Todos</h2>
+          <% } else { %>
+            <h2 class="mt-5">Todos</h2>
+            <ul class="list-group mt-2">
+                <% for(let item of data) { %>
+                  <li  class="list-group-item bg-dark text-light d-flex justify-content-between p-3">
+                      <strong><%= item.todo %></strong>
+                      <div class="elements d-flex">
+                          <span style="margin-right: 15px;" class="d-block" >Added Time: <time><%= item.addedTime  %></time></span>
+                          <span>Time: <time><%= item.time  %></time></span>
+                        <a href="/delete/<%= item.id %>" class="text-light">Delete</a>
+                      </div>
+                  </li>
+                <% } %>  
+            </ul>            
+          <% }  %>
+    </div>
+</body>
+</html>
